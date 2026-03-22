@@ -1,7 +1,3 @@
-Файл `README.md` готов для скачивания. Вот он текстом:
-
-***
-
 # 🖥️ Windows Server Optimization Script v2.3
 
 <p align="center">
@@ -12,7 +8,7 @@
   <img src="https://img.shields.io/badge/Updated-07.03.2026-lightgrey" alt="Updated">
 </p>
 
-Расширенная оптимизация Windows Server 2016/2019 для высоконагруженных окружений: WebSockets, высокая пропускная способность сети, минимальные задержки. Скрипт автоматически рассчитывает параметры под конкретное железо, применяет более 40 оптимизаций и генерирует подробный отчёт.
+Расширенная оптимизация Windows Server для высоконагруженных окружений: WebSockets, высокая пропускная способность сети, минимальные задержки. Скрипт автоматически рассчитывает параметры под конкретное железо, применяет более 40 оптимизаций и генерирует подробный отчёт.
 
 ***
 
@@ -70,7 +66,7 @@ Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File C:\optimiz
 
 ### Способ 2 — через правую кнопку мыши
 
-1. Скачайте `optimize.ps1`
+1. Скачайте `START.ps1`
 2. ПКМ → **«Запустить с помощью PowerShell»**
 3. При запросе UAC — нажмите **«Да»**
 
@@ -78,7 +74,7 @@ Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File C:\optimiz
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
-.\optimize.ps1
+.\START.ps1
 ```
 
 > ⚠️ **Не запускайте через** `powershell -Command "irm url | iex"` — скрипт запрашивает ввод (перезагрузка).
@@ -223,7 +219,7 @@ Start-Service -Name "WSearch"
 ## 📁 Структура
 
 ```
-optimize.ps1                         # Основной скрипт
+START.ps1                            # Основной скрипт
 README.md                            # Документация
 C:\Optimization-Report-*.txt         # Генерируется после запуска
 ```
