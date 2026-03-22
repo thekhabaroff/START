@@ -1,7 +1,5 @@
 <div align="center"><h1> 🖥️ Windows Server Optimization Script v2.3 </div>
 
-***
-
 <div align="center">
 
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-blue?style=for-the-badge&logo=powershell&logoColor=white)
