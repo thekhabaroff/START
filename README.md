@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/PowerShell-5.1+-blue?logo=powershell&logoColor=white" alt="PowerShell">
-![Windows Server](https://img.shields.io/badge/Windows%20Server-2016%20%7C%202019%20%7C%202022-0078D4?logo=windows&logoColor=white)
+  <img src="https://img.shields.io/badge/Windows%20Server-2016%20%7C%202019%20%7C%202022-0078D4?logo=windows&logoColor=white" alt="Windows Server">
   <img src="https://img.shields.io/badge/Version-2.3-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/Requires-Administrator-red" alt="Admin">
   <img src="https://img.shields.io/badge/Updated-07.03.2026-lightgrey" alt="Updated">
