@@ -1,4 +1,6 @@
-# 🖥️ Windows Server Optimization Script v2.3
+<div align="center"><h1> 🖥️ Windows Server Optimization Script v2.3<h1> </div>
+
+***
 
 <div align="center">
 
