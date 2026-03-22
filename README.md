@@ -16,9 +16,9 @@
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Requires](https://img.shields.io/badge/Requires-Administrator-red?style=for-the-badge&logo=windows-terminal&logoColor=white)
 ![Updated](https://img.shields.io/badge/Updated-07.03.2026-lightgrey?style=for-the-badge)
-![Stars](https://img.shields.io/github/stars/thekhabaroff/repo?style=for-the-badge)
-![Last Commit](https://img.shields.io/github/last-commit/thekhabaroff/repo?style=for-the-badge)
-![Issues](https://img.shields.io/github/issues/thekhabaroff/repo?style=for-the-badge)
+![Stars](https://img.shields.io/github/stars/thekhabaroff/START?style=for-the-badge)
+![Last Commit](https://img.shields.io/github/last-commit/thekhabaroff/START?style=for-the-badge)
+![Issues](https://img.shields.io/github/issues/thekhabaroff/START?style=for-the-badge)
 
 </div>
 
