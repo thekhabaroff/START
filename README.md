@@ -8,6 +8,21 @@
   <img src="https://img.shields.io/badge/Updated-07.03.2026-lightgrey" alt="Updated">
 </p>
 
+<div align="center">
+
+![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-blue?style=for-the-badge&logo=powershell&logoColor=white)
+![Windows Server](https://img.shields.io/badge/Windows%20Server-2016%20|%202019%20|%202022-0078D4?style=for-the-badge&logo=windows&logoColor=white)
+![Version](https://img.shields.io/badge/Version-2.3-brightgreen?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+![Requires](https://img.shields.io/badge/Requires-Administrator-red?style=for-the-badge&logo=windows-terminal&logoColor=white)
+![Updated](https://img.shields.io/badge/Updated-07.03.2026-lightgrey?style=for-the-badge)
+![Stars](https://img.shields.io/github/stars/username/repo?style=for-the-badge)
+![Last Commit](https://img.shields.io/github/last-commit/username/repo?style=for-the-badge)
+![Issues](https://img.shields.io/github/issues/username/repo?style=for-the-badge)
+
+</div>
+
+
 Расширенная оптимизация Windows Server для высоконагруженных окружений: WebSockets, высокая пропускная способность сети, минимальные задержки. Скрипт автоматически рассчитывает параметры под конкретное железо, применяет более 40 оптимизаций и генерирует подробный отчёт.
 
 ***
