@@ -248,6 +248,68 @@ C:\Optimization-Report-*.txt         # Генерируется после за�
 
 ***
 
+## ☕ Поддержать проект
+
+Если скрипт сэкономил тебе время — можешь поддержать разработку криптовалютой:
+
+<details>
+<summary><b>🟠 BTC</b></summary>
+
+```
+1CAWPNFJMAWxCany1A317yqHoZz4mq9MTE
+```
+
+</details>
+
+<details>
+<summary><b>🔷 EVM</b></summary>
+
+```
+0xbdfa3a427e457a99d7254af04b44fe76c347bd10
+```
+
+</details>
+
+<details>
+<summary><b>💚 TRC</b></summary>
+
+```
+TFGa8KRdcyCv3gk6khGU8NQvR8ot5UtiP5
+```
+
+</details>
+
+<details>
+<summary><b>🟣 TON</b></summary>
+
+```
+UQCacF30U98zSCbzd1NM5qMjjdkTygJwMjgDURobdXTIDN4-
+```
+
+</details>
+
+<details>
+<summary><b>💜 SOL</b></summary>
+
+```
+ETdRsuSYgpijG4RFckEQUoLfQ4CctibcoshTKyk1sCoW
+```
+
+</details>
+
+<details>
+<summary><b>🔵 APT</b></summary>
+
+```
+0x82b02deef3c3d8d21a665c53d9ea2e046813b6a92085efbc241b8acf69dc3af5
+```
+
+</details>
+
+> Каждый донат мотивирует развивать проект дальше 🙏
+
+***
+
 ## 📜 Лицензия
 
 [MIT](LICENSE) — используйте свободно, упоминание автора приветствуется.
