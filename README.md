@@ -67,10 +67,10 @@
 
 ```powershell
 # 1. Скачайте скрипт
-Invoke-WebRequest -Uri "https://your-url/optimize.ps1" -OutFile "C:\optimize.ps1"
+Invoke-WebRequest -Uri "https://github.com/thekhabaroff/START/START.ps1" -OutFile "C:\START.ps1"
 
 # 2. Запустите от имени администратора
-Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File C:\optimize.ps1" -Verb RunAs
+Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File C:\START.ps1" -Verb RunAs
 ```
 
 ### Способ 2 — через правую кнопку мыши
