@@ -1,24 +1,30 @@
-<#
+﻿<#
 .SYNOPSIS
-    Расширенная оптимизация Windows Server 2016/2019 для высоких нагрузок
+    Расширенная оптимизация Windows Server 2016/2019/2022/2025 для высоких нагрузок
 .DESCRIPTION
     Включает все оптимизации + дополнительные настройки реестра,
     отключение телеметрии, оптимизацию планировщика заданий.
 .NOTES
-    Версия: 2.3
-    Дата обновления: 07.03.2026
+    Версия: 2.4
+    Дата обновления: 28.04.2026
     Требования: Права администратора
 #>
+
+# Гарантируем корректный вывод UTF-8 в консоль (русский + псевдографика + эмодзи)
+try {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    $OutputEncoding = [System.Text.Encoding]::UTF8
+} catch {}
 
 # Проверка прав администратора
 if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Host "❌ Требуются права администратора!" -ForegroundColor Red
-    pause
-    exit
+    Read-Host -Prompt "Нажмите Enter для выхода"
+    exit 1
 }
 
 Write-Host "╔═══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║   Расширенная оптимизация Windows Server (v2.3)              ║" -ForegroundColor Cyan
+Write-Host "║   Расширенная оптимизация Windows Server (v2.4)              ║" -ForegroundColor Cyan
 Write-Host "║   WebSockets + High Performance + Security Hardening         ║" -ForegroundColor Cyan
 Write-Host "╚═══════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
@@ -31,7 +37,7 @@ Write-Host "[1/11] Оптимизация TCP/IP..." -ForegroundColor Yellow
 netsh int ipv4 set dynamicport tcp start=1025 num=64511 store=persistent | Out-Null
 netsh int ipv4 set dynamicport udp start=1025 num=64511 store=persistent | Out-Null
 
-$RegPath = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"
+$RegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
 $TcpSettings = @{
     "TcpTimedWaitDelay"          = 30
     "StrictTimeWaitSeqCheck"     = 1
@@ -54,7 +60,7 @@ foreach ($Key in $TcpSettings.Keys) {
 netsh int tcp set global rss=enabled | Out-Null
 netsh int tcp set global autotuninglevel=normal | Out-Null
 netsh int tcp set global dca=enabled | Out-Null              # Direct Cache Access
-netsh int tcp set global netdma=enabled | Out-Null           # Network DMA
+# netsh netdma удалён начиная с Windows 8/Server 2012, на современных ОС не существует
 
 Write-Host "   ✓ TCP/IP расширенная оптимизация применена" -ForegroundColor Green
 
@@ -63,22 +69,23 @@ Write-Host "   ✓ TCP/IP расширенная оптимизация прим
 # ============================================================================
 Write-Host "[2/11] Отключение телеметрии Windows..." -ForegroundColor Yellow
 
-$TelemetryPath = "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"
+$TelemetryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
 New-Item -Path $TelemetryPath -Force | Out-Null
 New-ItemProperty -Path $TelemetryPath -Name "AllowTelemetry" -Value 0 -PropertyType DWORD -Force | Out-Null
 
+# Disable-ScheduledTask требует TaskPath и TaskName раздельно
 $TelemetryTasks = @(
-    "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser",
-    "\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater",
-    "\\Microsoft\\Windows\\Autochk\\Proxy",
-    "\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator",
-    "\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip",
-    "\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector"
+    @{ Path = "\Microsoft\Windows\Application Experience\";                       Name = "Microsoft Compatibility Appraiser" },
+    @{ Path = "\Microsoft\Windows\Application Experience\";                       Name = "ProgramDataUpdater" },
+    @{ Path = "\Microsoft\Windows\Autochk\";                                      Name = "Proxy" },
+    @{ Path = "\Microsoft\Windows\Customer Experience Improvement Program\";      Name = "Consolidator" },
+    @{ Path = "\Microsoft\Windows\Customer Experience Improvement Program\";      Name = "UsbCeip" },
+    @{ Path = "\Microsoft\Windows\DiskDiagnostic\";                               Name = "Microsoft-Windows-DiskDiagnosticDataCollector" }
 )
 
 foreach ($Task in $TelemetryTasks) {
     try {
-        Disable-ScheduledTask -TaskName $Task -ErrorAction SilentlyContinue | Out-Null
+        Disable-ScheduledTask -TaskPath $Task.Path -TaskName $Task.Name -ErrorAction SilentlyContinue | Out-Null
     } catch {}
 }
 
@@ -89,6 +96,8 @@ Write-Host "   ✓ Телеметрия отключена" -ForegroundColor Gre
 # ============================================================================
 Write-Host "[3/11] Отключение ненужных служб..." -ForegroundColor Yellow
 
+# ВНИМАНИЕ: TrustedInstaller (Windows Modules Installer) НЕ отключаем —
+# без него ломаются Windows Update, DISM и установка ролей/компонентов.
 $ServicesToDisable = @(
     "PcaSvc",              # Помощник совместимости
     "DiagTrack",           # Телеметрия
@@ -103,7 +112,6 @@ $ServicesToDisable = @(
     "WbioSrvc",            # Windows Biometric Service
     "FontCache",           # Windows Font Cache (если не GUI)
     "TabletInputService",  # Touch Keyboard
-    "TrustedInstaller",    # Windows Modules Installer Worker
     "Spooler",             # Диспетчер печати
     "Fax",                 # Факс
     "RetailDemo",          # Демо-режим магазинов
@@ -167,17 +175,20 @@ Write-Host "[6/11] Удаление ненужных компонентов..." 
 Start-Service ServerManager -ErrorAction SilentlyContinue
 Set-Service -Name ServerManager -StartupType Automatic -ErrorAction SilentlyContinue
 
+# На Server 2022/2025 имя фичи Defender — "Windows-Defender",
+# на Server 2016/2019 — "Windows-Defender-Features". Пробуем оба.
 $FeaturesToRemove = @(
     "XPS-Viewer",
     "Wireless-Networking",
     "PowerShell-V2",
-    "Windows-Defender-Features"
+    "Windows-Defender-Features",
+    "Windows-Defender"
 )
 
 $RemovedCount = 0
 foreach ($Feature in $FeaturesToRemove) {
     try {
-        $Result = Uninstall-WindowsFeature $Feature -Remove -ErrorAction Stop
+        $Result = Uninstall-WindowsFeature $Feature -ErrorAction Stop
         if ($Result.Success) { $RemovedCount++ }
     } catch {}
 }
@@ -189,12 +200,12 @@ Write-Host "   ✓ Удалено компонентов: $RemovedCount" -Foregr
 # ============================================================================
 Write-Host "[7/11] Отключение Windows Defender..." -ForegroundColor Yellow
 
-$DefenderPath = "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender"
+$DefenderPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"
 New-Item -Path $DefenderPath -Force | Out-Null
 New-ItemProperty -Path $DefenderPath -Name "DisableAntiSpyware" -Value 1 -PropertyType DWORD -Force | Out-Null
 New-ItemProperty -Path $DefenderPath -Name "DisableRoutinelyTakingAction" -Value 1 -PropertyType DWORD -Force | Out-Null
 
-$RealtimePath = "$DefenderPath\\Real-Time Protection"
+$RealtimePath = "$DefenderPath\Real-Time Protection"
 New-Item -Path $RealtimePath -Force | Out-Null
 New-ItemProperty -Path $RealtimePath -Name "DisableRealtimeMonitoring" -Value 1 -PropertyType DWORD -Force | Out-Null
 
@@ -218,19 +229,19 @@ $PagefileSizeMB = 0
 if ($TotalRAM_GB -le 4) {
     $PagefileSizeMB = [math]::Max(8192, [math]::Round($TotalRAM_GB * 2 * 1024))
     $Recommendation = "Мало RAM - увеличенный Pagefile (2x RAM)"
-} 
+}
 elseif ($TotalRAM_GB -le 8) {
     $PagefileSizeMB = [math]::Round($TotalRAM_GB * 1.5 * 1024)
     $Recommendation = "Средний объем RAM - стандартный расчет (1.5x RAM)"
-} 
+}
 elseif ($TotalRAM_GB -le 16) {
     $PagefileSizeMB = [math]::Max(4096, [math]::Round($TotalRAM_GB * 0.75 * 1024))
     $Recommendation = "Достаточно RAM - уменьшенный Pagefile (0.75x RAM)"
-} 
+}
 elseif ($TotalRAM_GB -le 32) {
     $PagefileSizeMB = [math]::Max(4096, [math]::Round($TotalRAM_GB * 0.5 * 1024))
     $Recommendation = "Много RAM - минимальный Pagefile (0.5x RAM)"
-} 
+}
 else {
     $PagefileSizeMB = 4096
     $Recommendation = "Очень много RAM - минимальный Pagefile (4 ГБ)"
@@ -252,8 +263,8 @@ try {
         Write-Host "   ✓ Pagefile: $([math]::Round($PagefileSizeMB / 1024, 2)) ГБ (фиксированный)" -ForegroundColor Green
     } else {
         Write-Host "   ⚠ Не удалось найти настройки Pagefile, создаю новый..." -ForegroundColor Yellow
-        $PageFile = ([WmiClass]"root\\cimv2:Win32_PageFileSetting").CreateInstance()
-        $PageFile.Name = "C:\\pagefile.sys"
+        $PageFile = ([WmiClass]"root\cimv2:Win32_PageFileSetting").CreateInstance()
+        $PageFile.Name = "C:\pagefile.sys"
         $PageFile.InitialSize = $PagefileSizeMB
         $PageFile.MaximumSize = $PagefileSizeMB
         $PageFile.Put() | Out-Null
@@ -281,9 +292,15 @@ Write-Host "[9/11] Оптимизация сетевого адаптера..." 
 try {
     $Adapters = Get-NetAdapter | Where-Object {$_.Status -eq "Up"}
     foreach ($Adapter in $Adapters) {
-        # IPv6 не отключается — может потребоваться для AD/кластеров
-        Set-NetAdapterAdvancedProperty -Name $Adapter.Name -DisplayName "Receive Buffers" -DisplayValue "2048" -ErrorAction SilentlyContinue
-        Set-NetAdapterAdvancedProperty -Name $Adapter.Name -DisplayName "Transmit Buffers" -DisplayValue "2048" -ErrorAction SilentlyContinue
+        # IPv6 не отключается — может потребоваться для AD/кластеров.
+        # DisplayName зависит от драйвера и языка ОС, поэтому оборачиваем в try.
+        try {
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -DisplayName "Receive Buffers"  -DisplayValue "2048" -ErrorAction SilentlyContinue
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -DisplayName "Transmit Buffers" -DisplayValue "2048" -ErrorAction SilentlyContinue
+            # Русские локализованные имена
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -DisplayName "Буферы приёма"    -DisplayValue "2048" -ErrorAction SilentlyContinue
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -DisplayName "Буферы передачи"  -DisplayValue "2048" -ErrorAction SilentlyContinue
+        } catch {}
     }
     Write-Host "   ✓ Сетевые адаптеры оптимизированы" -ForegroundColor Green
 } catch {
@@ -295,12 +312,12 @@ try {
 # ============================================================================
 Write-Host "[10/11] Очистка временных файлов..." -ForegroundColor Yellow
 
-Remove-Item -Path "$env:TEMP\\*" -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -Path "C:\\Windows\\Temp\\*" -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -Path "C:\\Windows\\Prefetch\\*" -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "C:\Windows\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "C:\Windows\Prefetch\*" -Force -ErrorAction SilentlyContinue
 
 Stop-Service -Name wuauserv -Force -ErrorAction SilentlyContinue
-Remove-Item -Path "C:\\Windows\\SoftwareDistribution\\Download\\*" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "C:\Windows\SoftwareDistribution\Download\*" -Recurse -Force -ErrorAction SilentlyContinue
 Start-Service -Name wuauserv -ErrorAction SilentlyContinue
 
 Write-Host "   ✓ Временные файлы очищены" -ForegroundColor Green
@@ -310,7 +327,7 @@ Write-Host "   ✓ Временные файлы очищены" -ForegroundColo
 # ============================================================================
 Write-Host "[11/11] Создание отчета оптимизации..." -ForegroundColor Yellow
 
-$ReportPath = "C:\\Optimization-Report-$(Get-Date -Format 'yyyy-MM-dd-HHmm').txt"
+$ReportPath = "C:\Optimization-Report-$(Get-Date -Format 'yyyy-MM-dd-HHmm').txt"
 $Report = @"
 ═══════════════════════════════════════════════════════════════
   ОТЧЕТ ОБ ОПТИМИЗАЦИИ WINDOWS SERVER
@@ -380,4 +397,5 @@ if ($Reboot -eq "Y" -or $Reboot -eq "y") {
     Write-Host ""
     Write-Host "Команда для ручной перезагрузки: Restart-Computer" -ForegroundColor Cyan
     Write-Host "Отчет доступен: $ReportPath" -ForegroundColor Cyan
+    Read-Host -Prompt "Нажмите Enter для выхода"
 }
